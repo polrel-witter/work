@@ -204,6 +204,17 @@
         ?~  p  sites
         $(sites (~(put ju sites) app.act i.p), p t.p)
       :: TODO (parse paths-to-parse)
+      ::
+      ::  subscribe to file changes so we know when to reparse
+      ::
+      =.  cor
+        %-  emil
+        %+  turn  paths.act
+        |=  =path
+        ^-  card
+        =/  =task:clay
+          [%warp our.bowl desk.app.act ~ %next %u [%da now.bowl] path]
+        [%pass /update %arvo %c task]
       cor
       ::  +is-remote: are we the maintainer?
       ::
