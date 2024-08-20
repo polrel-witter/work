@@ -140,6 +140,24 @@
       :: TODO reparse all files in path list
       cor
     ::
+        %ignore
+      ?.  =(ship.app.act our.bowl)
+        ~&(>> "cannot track another ship's desk" cor)
+      =.  sites
+        |-
+        ?~  paths.act  sites
+        %=  $
+          sites  (~(del ju sites) app.act i.paths.act)
+          paths.act  t.paths.act
+        ==
+      =.  tasks
+        |-
+        ?~  paths.act  tasks
+        $(tasks (~(del by tasks) i.paths.act), paths.act t.paths.act)
+      cor
+    ::
+        %reparse  !!
+    ::
         %track
       |^
       ?.  =(ship.app.act our.bowl)
