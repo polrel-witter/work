@@ -16,8 +16,10 @@
 ::  $action: agent poke
 ::
 +$  action
-  $%  [%clue =clue]                    :: set the task hint
-      [%track =app paths=(list path)]  :: track tasks within a set of files
+  $%  [%clue =clue]                     :: set the task hint
+      [%track =app paths=(list path)]   :: track a list of files for tasks
+      [%ignore =app paths=(list path)]  :: stop tracking list of files
+      [%reparse =app =path]             :: reparse a file we'realready tracking
   ==
 ::  +records: sss structures
 ::
