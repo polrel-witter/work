@@ -9,7 +9,6 @@
 ::
 +$  state-0
   $:  %0
-      =clue                                      :: our task hint
       sites=(jug app path)                       :: files with task tracking
       clues=(map app clue)                       :: task hints by app
       tasks=(mip path flag task)                 :: all surfaced tasks
@@ -126,17 +125,17 @@
     =/  act  !<(action vase)
     ?.  =(src.bowl our.bowl)  cor
     ?-    -.act
-        %clue
-      ?:  =(clue clue.act)
-        ~&(>> "{<clue.act>} already set as task hint" cor)
-      =/  paths=(list path)
-        %-  zing
-        %+  murn  ~(tap in ~(key by sites))
-        |=  =app
-        ?.  =(our.bowl ship.app)  ~
-        `~(tap in (~(get ju sites) app))
-      =.  clue   clue.act
-      ?~  paths  cor
+        %clue  !!
+      :: TODO add to $clues and refactor to reparse by app
+   ::   ?:  =(clue clue.act)
+   ::     ~&(>> "{<clue.act>} already set as task hint" cor)
+   ::   =/  paths=(list path)
+   ::     %-  zing
+   ::     %+  murn  ~(tap in ~(key by sites))
+   ::     |=  =app
+   ::     ?.  =(our.bowl ship.app)  ~
+   ::     `~(tap in (~(get ju sites) app))
+   ::   ?~  paths  cor
       :: TODO reparse all files in path list
       cor
     ::
