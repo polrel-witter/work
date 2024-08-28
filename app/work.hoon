@@ -68,7 +68,8 @@
   ++  on-arvo
     |=  [=wire =sign-arvo]
     ^-  (quip card _this)
-    `this
+    =^  cards  state  abet:(arvo:cor wire sign-arvo)
+    [cards this]
   ::
   ++  on-watch
     |=  =path
@@ -117,6 +118,128 @@
   ?>  ?=([%0 *] q.vase)
   cor(state !<(state-0 vase))
 ::
+++  agent
+  |=  [=wire =sign:agent:gall]
+  ^+  cor
+  ?+    wire  cor
+      [~ %sss %on-rock @ @ @ %records @ @ ~]
+    =.  subs
+      (chit:da-records |3:wire sign)
+    cor
+  ::
+      [~ %sss %scry-request @ @ @ %records @ @ ~]
+    (sss-subs (tell:da-records |3:wire sign))
+  ::
+      [~ %sss %scry-response @ @ @ %records @ @ ~]
+    (sss-pubs (tell:du-records |3:wire sign))
+  ==
+::
+++  arvo
+  |=  [=wire =sign-arvo]
+  ^+  cor
+  ?+    wire  ~|(bad-arvo-wire+wire !!)
+      [%eyre %connect ~]
+    ?.  ?=([%eyre %bound *] sign-arvo)
+      ~|(unexpected-system-response+sign-arvo !!)
+    ~?  !accepted.sign-arvo
+      [dap.bowl 'eyre bind rejected!' binding.sign-arvo]
+    cor
+  ::
+      [%update *]
+    ?+    t.wire  ~|(bad-arvo-wire+wire !!)
+        [%file @ *]
+      ?.  ?=([%clay %writ *] sign-arvo)
+        ~|(unexpected-system-response+sign-arvo !!)
+      =/  =desk  (slav %tas i.t.t.wire)
+      =/  =path  t.t.t.wire
+      =/  =riot:clay  p.sign-arvo
+      ?~  riot
+        =/  update=(unit _cor)
+          %-  mole
+          |.  (poke action+!>(`action`[%ignore [our.bowl desk] [path]~]))
+        ?~  update
+          ~&(>>> "failed to ignore {<path>}, still tracking" cor)
+        =.  cor  u.update
+        cor
+      :: TODO parse the updated file which is included in the riot
+      ::
+      ~&  >  "resubscribing to {<path>}"
+      (track-file %start desk [path]~)
+    ==
+  ==
+::  +is-live: is the app installed?
+::
+++  is-live
+  |=  =desk
+  ^-  ?
+  =/  live-desks=rock:tire:clay
+    .^(rock:tire:clay %cx /(scot %p our.bowl)//(scot %da now.bowl)/tire)
+  ?~  status=(~(get by live-desks) desk)
+    ~&(>>> "{<desk>} desk not found" |)
+  ?.  ?=(%dead zest.u.status)  &
+  ~&(>>> "{<desk>} desk is %dead" |)
+::  +we-maintain: are we the maintainer of a desk?
+::
+++  we-maintain
+  |^  |=  crook=desk
+      ^-  ?
+      =/  remote-desks=(map [desk ship desk] *)
+        .^  (map [desk ship desk] *)
+          %gx
+          /(scot %p our.bowl)/hood/(scot %da now.bowl)/kiln/syncs/noun
+        ==
+      ?.  (is-remote crook ~(tap in ~(key by remote-desks)))  &
+      ~&(>>> "{<crook>} is a remote desk, not tracking" |)
+  ::
+  ++  is-remote
+    |=  [crook=desk desks=(list [=desk * *])]
+    |-  ^-  ?
+    ?~  desks  |
+    ?:(=(crook desk.i.desks) & $(desks t.desks))
+  --
+::  +file-check: remove files from a (list path) that aren't in a
+::  particular desk
+::
+++  file-check
+  |=  [=desk paths=(list path)]
+  ^+  paths
+  =/  local-paths=(list path)
+    .^  (list path)
+      %ct
+      /(scot %p our.bowl)/(scot %tas desk)/(scot %da now.bowl)
+    ==
+  ?~  local-paths
+    ~&(>>> "no paths found in {<desk>}" ~)
+  =/  l=(set path)
+    (silt local-paths)
+  %+  murn  paths
+  |=  =path
+  ?.  (~(has in l) path)
+    ~&(>> "{<path>} not found in {<desk>}" ~)
+  `path
+::  +track-file: subscribe to or cancel tracking updates to a list of files in
+::  Clay
+::
+++  track-file
+  |=  [act=?(%start %stop) =desk paths=(list path)]
+  ^+  cor
+  %-  emil
+  %+  turn  paths
+  |=  =path
+  ^-  card
+  =;  =task:clay
+    =/  =wire
+      (weld /update/file/(scot %tas desk) path)
+    [%pass wire %arvo %c task]
+  :*  %warp
+      our.bowl
+      desk
+      ?-  act
+        %stop   ~                                 :: cancel subscription
+        %start  [~ %next %x [%da now.bowl] path]  :: subscribe
+      ==
+  ==
+::
 ++  poke
   |=  [=mark =vase]
   ^+  cor
@@ -137,11 +260,11 @@
    ::     `~(tap in (~(get ju sites) app))
    ::   ?~  paths  cor
       :: TODO reparse all files in path list
-      cor
     ::
         %ignore
       ?.  =(ship.app.act our.bowl)
-        ~&(>> "cannot track another ship's desk" cor)
+        ~&(>>> "cannot track another ship's desk" cor)
+      ?.  (is-live desk.app.act)  cor
       =.  sites
         |-
         ?~  paths.act  sites
@@ -153,76 +276,34 @@
         |-
         ?~  paths.act  tasks
         $(tasks (~(del by tasks) i.paths.act), paths.act t.paths.act)
-      cor
+      ::  cancel Clay subscription
+      ::
+      ~&  >  "stopped tracking {<paths.act>}"
+      (track-file %stop desk.app.act paths.act)
     ::
         %reparse  !!
     ::
-        %track
-      |^
+        %surface
       ?.  =(ship.app.act our.bowl)
-        ~&(>> "cannot track another ship's desk" cor)
-      ::  is the app installed?
+        ~&(>>> "cannot surface someone else's tasks" cor)
+      ?.  (is-live desk.app.act)  cor
+      ?.  (we-maintain desk.app.act)  cor
+      =/  files-to-parse=(list path)
+        (file-check desk.app.act paths.act)
+      ::  update sites
       ::
-      =/  live-desks=(map desk [=zest:clay *])
-        .^(rock:tire:clay %cx /(scot %p our.bowl)//(scot %da now.bowl)/tire)
-      ?~  status=(~(get by live-desks) desk.app.act)
-        ~&(>> "{<desk.app.act>} not found" cor)
-      ?:  ?=(%dead zest.u.status)
-        ~&(>> "{<desk.app.act>} is %dead" cor)
-      ::  are we the maintainer?
-      ::
-      =/  remote-desks=(map [desk ship desk] *)
-        .^  (map [desk ship desk] *)
-          %gx
-          /(scot %p our.bowl)/hood/(scot %da now.bowl)/kiln/syncs/noun
-        ==
-      ?:  (is-remote app.act ~(tap in ~(key by remote-desks)))
-        ~&(>> "{<desk.app.act>} is a remote desk" cor)
-      ::  do we have the files we want to track?
-      ::
-      =/  local-paths=(list path)
-        .^  (list path)
-          %ct
-          /(scot %p our.bowl)/(scot %tas desk.app.act)/(scot %da now.bowl)
-        ==
-      ?~  local-paths
-        ~&(>> "no paths found in {<desk.app.act>}" cor)
-      =/  paths-to-parse=(list path)
-        =/  l=(set path)
-          (silt local-paths)
-        %+  murn  paths.act
-        |=  =path
-        ?.  (~(has in l) path)
-          ~&(>> "{<path>} not found in {<desk.app.act>}" ~)
-        `path
-      ::  update sites and parse files
-      ::
-      =.  sites
-        =+  p=paths-to-parse
+      =?  sites  ?~(files-to-parse | &)
+        =+  f=files-to-parse
         |-
-        ?~  p  sites
-        $(sites (~(put ju sites) app.act i.p), p t.p)
-      :: TODO (parse paths-to-parse)
+        ?~  f  sites
+        $(sites (~(put ju sites) app.act i.f), f t.f)
+      ?~  files-to-parse  cor
+      :: TODO add clue.act to $clues
+      :: TODO (parse files-to-parse)
+      ::  subscribe to file updates
       ::
-      ::  subscribe to file changes so we know when to reparse
-      ::
-      =.  cor
-        %-  emil
-        %+  turn  paths.act
-        |=  =path
-        ^-  card
-        =/  =task:clay
-          [%warp our.bowl desk.app.act ~ %next %u [%da now.bowl] path]
-        [%pass /update %arvo %c task]
-      cor
-      ::  +is-remote: are we the maintainer?
-      ::
-      ++  is-remote
-        |=  [=app desks=(list [=desk * *])]
-        |-  ^-  ?
-        ?~  desks  |
-        ?:(=(desk.app desk.i.desks) & $(desks t.desks))
-      --
+      ~&  >  "surfacing {<paths.act>}"
+      (track-file %start desk.app.act paths.act)
     ==
   ::
       %sss-to-pub
@@ -249,22 +330,6 @@
   ::    ?~(wave.msg rock.msg u.wave.msg)
     cor
     --
-  ==
-::
-++  agent
-  |=  [=wire =sign:agent:gall]
-  ^+  cor
-  ?+    wire  cor
-      [~ %sss %on-rock @ @ @ %records @ @ ~]
-    =.  subs
-      (chit:da-records |3:wire sign)
-    cor
-  ::
-      [~ %sss %scry-request @ @ @ %records @ @ ~]
-    (sss-subs (tell:da-records |3:wire sign))
-  ::
-      [~ %sss %scry-response @ @ @ %records @ @ ~]
-    (sss-pubs (tell:du-records |3:wire sign))
   ==
 ::
 --
