@@ -248,18 +248,20 @@
     =/  act  !<(action vase)
     ?.  =(src.bowl our.bowl)  cor
     ?-    -.act
-        %clue  !!
-      :: TODO add to $clues and refactor to reparse by app
-   ::   ?:  =(clue clue.act)
-   ::     ~&(>> "{<clue.act>} already set as task hint" cor)
-   ::   =/  paths=(list path)
-   ::     %-  zing
-   ::     %+  murn  ~(tap in ~(key by sites))
-   ::     |=  =app
-   ::     ?.  =(our.bowl ship.app)  ~
-   ::     `~(tap in (~(get ju sites) app))
-   ::   ?~  paths  cor
-      :: TODO reparse all files in path list
+        %clue
+      =;  c=(unit clue)
+        ?~  c  cor
+        ~&  >  "set {<desk.app.act>} clue as {<clue.act>}"
+        cor(clues (~(put by clues) app.act clue.act))
+      ?~  current=(~(get by clues) app.act)
+        `clue.act
+      ?:  =(u.current clue.act)
+        ~&(>> "{<clue.act>} already set as task hint" ~)
+      ?~  paths=(~(get ju sites) app.act)
+        ~&(>> "no files to reparse in {<desk.app.act>}" `clue.act)
+      ~&  >  "reparsing {<desk.app.act>} files with new clue: {<clue.act>}"
+      :: TODO (parse-files u.paths)
+      `clue.act
     ::
         %ignore
       ?.  =(ship.app.act our.bowl)
@@ -288,6 +290,8 @@
         ~&(>>> "cannot surface someone else's tasks" cor)
       ?.  (is-live desk.app.act)  cor
       ?.  (we-maintain desk.app.act)  cor
+      ?.  (~(has by clues) app.act)
+        ~&(>>> "clue not set for {<desk.app.act>}" cor)
       =/  files-to-parse=(list path)
         (file-check desk.app.act paths.act)
       ::  update sites
@@ -298,7 +302,6 @@
         ?~  f  sites
         $(sites (~(put ju sites) app.act i.f), f t.f)
       ?~  files-to-parse  cor
-      :: TODO add clue.act to $clues
       :: TODO (parse files-to-parse)
       ::  subscribe to file updates
       ::
