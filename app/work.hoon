@@ -280,10 +280,8 @@
         $(tasks (~(del by tasks) i.paths.act), paths.act t.paths.act)
       ::  cancel Clay subscription
       ::
-      ~&  >  "stopped tracking {<paths.act>}"
+      ~&  >  "stopped surfacing {<paths.act>}"
       (track-file %stop desk.app.act paths.act)
-    ::
-        %reparse  !!
     ::
         %surface
       ?.  =(ship.app.act our.bowl)

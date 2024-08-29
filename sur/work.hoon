@@ -19,7 +19,6 @@
   $%  [%clue =app =clue]                 :: set task hint for an app
       [%surface =app paths=(list path)]  :: publish tasks for set of files
       [%ignore =app paths=(list path)]   :: stop surfacing tasks
-      [%reparse =app =path]              :: reparse a file we're surfacing
   ==
 ::  +records: sss structures
 ::
