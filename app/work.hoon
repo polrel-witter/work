@@ -167,7 +167,7 @@
       (track-file %start desk [path]~)
     ==
   ==
-::  +is-live: is the app installed?
+::  +is-live: is the app installed and alive?
 ::
 ++  is-live
   |=  =desk
