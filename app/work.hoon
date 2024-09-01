@@ -154,6 +154,8 @@
       =/  =desk  (slav %tas i.t.t.wire)
       =/  =path  t.t.t.wire
       =/  =riot:clay  p.sign-arvo
+      :: TODO scry for source ship to include below; currently subbing
+      :: for our.bowl
       ?~  riot
         =/  update=(unit _cor)
           %-  mole
@@ -363,9 +365,6 @@
     =/  msg  !<(from:da-records (fled vase))
     ?>  ?=([[%records @ @ ~] *] msg)
     ?>  =(our.bowl `ship`+>-:path.msg)
-  ::  =/  name=term  +<:path.msg
-  ::  =/  update=clue
-  ::    ?~(wave.msg rock.msg u.wave.msg)
     cor
     --
   ==
