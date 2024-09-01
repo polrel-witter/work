@@ -4,10 +4,13 @@
 ::  $app: local application
 ::
 +$  app  [=ship =desk]
-::  $flag: task id
+::  $site: a file with task tracking
 ::
-+$  flag  @uv
-::  $task: some job
++$  site  [=app =path]
+::  $task-id: task identifier
+::
++$  task-id  @uv
+::  $task: a job
 ::
 +$  task  @t
 ::  $clue: task signifier

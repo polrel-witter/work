@@ -1,7 +1,8 @@
 ::  %work: job discovery
 ::
 /-  *work
-/+  *sss, *mip, verb, dbug, default-agent
+/+  *work, *sss, *mip
+/+  verb, dbug, default-agent
 ::
 |%
 ::
@@ -11,7 +12,7 @@
   $:  %0
       sites=(jug app path)                       :: files with task tracking
       clues=(map app clue)                       :: task hints by app
-      tasks=(mip path flag task)                 :: all surfaced tasks
+      tasks=(mip site task-id task)              :: all surfaced tasks
       subs=_(mk-subs records ,[%records @ @ ~])  :: subscriptions
       pubs=_(mk-pubs records ,[%records @ @ ~])  :: publications
   ==
@@ -161,12 +162,44 @@
           ~&(>>> "failed to ignore {<path>}, still tracking" cor)
         =.  cor  u.update
         cor
-      :: TODO parse the updated file which is included in the riot
+      =.  cor  (update-tasks [our.bowl desk] [path]~)
       ::
       ~&  >  "resubscribing to {<path>}"
       (track-file %start desk [path]~)
     ==
   ==
+::  +update-tasks: extract tasks from a list of files and update our
+::  tasks map
+::
+++  update-tasks
+  |=  [=app paths=(list path)]
+  |^  ^+  cor
+      ?~  clue=(~(get by clues) app)
+        ~&(>>> "cannot update tasks, clue not set for {<app>}" cor)
+      |-
+      ?~  paths  cor
+      :: TODO type-check the file; must be hoon
+      =/  diff=(list [task-id task])
+        (~(parse pa app bowl) u.clue (~(get-text pa app bowl) i.paths))
+      ~&  >  "successfully parsed {<i.paths>}"
+      ?~  diff
+        ~&  >>  "no tasks found in {<i.paths>}"
+        $(paths t.paths)
+      =.  cor  (merge-diff [app i.paths] diff)
+      $(paths t.paths)
+  ::  +merge-diff: update tasks map
+  ::
+  ++  merge-diff
+    |=  [=site diff=(list [=task-id =task])]
+    ^+  cor
+    =.  tasks  (~(del by tasks) site)
+    |-
+    ?~  diff  cor
+    :: TODO temporarily delete whole site so we only worry about the most recent diff
+    =.  tasks
+      (~(put bi tasks) site task-id.i.diff task.i.diff)
+    $(diff t.diff)
+  --
 ::  +is-live: is the app installed and alive?
 ::
 ++  is-live
@@ -249,19 +282,20 @@
     ?.  =(src.bowl our.bowl)  cor
     ?-    -.act
         %clue
-      =;  c=(unit clue)
-        ?~  c  cor
-        ~&  >  "set {<desk.app.act>} clue as {<clue.act>}"
-        cor(clues (~(put by clues) app.act clue.act))
-      ?~  current=(~(get by clues) app.act)
-        `clue.act
-      ?:  =(u.current clue.act)
+      =/  c=(unit clue)
+        ?~  current=(~(get by clues) app.act)
+          `clue.act
+        ?.  =(u.current clue.act)  `clue.act
         ~&(>> "{<clue.act>} already set as task hint" ~)
-      ?~  paths=(~(get ju sites) app.act)
-        ~&(>> "no files to reparse in {<desk.app.act>}" `clue.act)
-      ~&  >  "reparsing {<desk.app.act>} files with new clue: {<clue.act>}"
-      :: TODO (parse-files u.paths)
-      `clue.act
+      ?~  c  cor
+      =.  clues
+        (~(put by clues) app.act clue.act)
+      ~&  >  "set {<desk.app.act>} task hint to {<clue.act>}"
+      =/  paths=(set path)
+        (~(get ju sites) app.act)
+      =?  cor  ?~(paths | &)
+        (update-tasks app.act ~(tap in paths))
+      cor
     ::
         %ignore
       ?.  =(ship.app.act our.bowl)
@@ -277,10 +311,13 @@
       =.  tasks
         |-
         ?~  paths.act  tasks
-        $(tasks (~(del by tasks) i.paths.act), paths.act t.paths.act)
+        %=  $
+          tasks  (~(del by tasks) [app.act i.paths.act])
+          paths.act  t.paths.act
+        ==
       ::  cancel Clay subscription
       ::
-      ~&  >  "stopped surfacing {<paths.act>}"
+      ~&  >  "stopped surfacing tasks in {<paths.act>}"
       (track-file %stop desk.app.act paths.act)
     ::
         %surface
@@ -289,21 +326,21 @@
       ?.  (is-live desk.app.act)  cor
       ?.  (we-maintain desk.app.act)  cor
       ?.  (~(has by clues) app.act)
-        ~&(>>> "clue not set for {<desk.app.act>}" cor)
-      =/  files-to-parse=(list path)
+        ~&(>>> "cannot surface tasks; clue not set for {<desk.app.act>}" cor)
+      =/  paths=(list path)
         (file-check desk.app.act paths.act)
       ::  update sites
       ::
-      =?  sites  ?~(files-to-parse | &)
-        =+  f=files-to-parse
+      =?  sites  ?~(paths | &)
+        =+  f=paths
         |-
         ?~  f  sites
         $(sites (~(put ju sites) app.act i.f), f t.f)
-      ?~  files-to-parse  cor
-      :: TODO (parse files-to-parse)
-      ::  subscribe to file updates
+      ?~  paths  cor
+      ::  update tasks and subscribe to file updates
       ::
-      ~&  >  "surfacing {<paths.act>}"
+      =.  cor  (update-tasks app.act paths)
+      ~&  >  "surfacing tasks in {<paths.act>}"
       (track-file %start desk.app.act paths.act)
     ==
   ::
