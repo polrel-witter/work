@@ -35,19 +35,28 @@
       %+  knee  *(list tape)
       |.  ~+
       ;~  pose
-        :: hunt for clue and extract the task
-        ;~(plug ;~(pfix dent ;~(pfix (jest clue) line)) take)
-        :: keep going until '\0a' and then code
-        :: ;~(pfix dent pull)
-        :: terminate at first rune
-        ::;~(pfix ;~(plug dent (just '\0a')) take)
-        :: continue cycling
+        ;~  plug
+          %+  cook
+            |=  a=(list tape)
+            (zing a)
+          ;~(pfix dent ;~(pfix (jest clue) tazk))
+          take
+        ==
         ;~(pfix line take)
         (cold ~ gay)
       ==
     ::
     ++  line
       ;~(sfix (star ;~(pose prn alf)) (jest '\0a'))
+    ::
+    :: TODO remove the ::s
+    ++  tazk
+      %+  knee  *(list tape)
+      |.  ~+
+      ;~  pose
+        (cold ~ ;~(plug code code))
+        ;~(plug ;~(sfix (star ;~(pose prn alf)) (jest '\0a')) tazk)
+      ==
     ::
     :: TODO refactor: probably simpler config
     ++  dent
@@ -58,13 +67,13 @@
         ;~(plug (star ace) col col)
       ==
     ::
-    ++  rune
+    ++  code
       ;~  pose
         bar
         buc
         cab
         cen
-        col
+        :: col
         com
         dot
         fas
