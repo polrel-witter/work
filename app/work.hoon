@@ -285,6 +285,9 @@
     ?.  =(src.bowl our.bowl)  cor
     ?-    -.act
         %clue
+      ?.  =(our.bowl ship.app.act)
+        ~&  >>>  "cannot set task hint for a remote desk"
+        cor
       =/  c=(unit clue)
         ?~  current=(~(get by clues) app.act)
           `clue.act
