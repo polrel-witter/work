@@ -89,9 +89,10 @@
     ::  +rune: match a rune
     ::
     ++  rune
-      ;~(plug code code)
+      ;~(plug haf haf)
+    ::  +haf: match a piece of a rune
     ::
-    ++  code
+    ++  haf
       ;~  pose
         bar
         buc
