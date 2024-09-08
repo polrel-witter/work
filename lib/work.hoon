@@ -39,13 +39,13 @@
       %+  knee  *(list tape)
       |.  ~+
       ;~  pose
-        ::  hunt for task hint
+        ::  hunt for task hint, and extract task if found
         ::
         ;~  plug
           %+  cook
             |=  a=(list tape)
             (zing a)
-          ;~(pfix dent ;~(pfix (jest clue) tazk))
+          ;~(pfix dent ;~(pfix (jest clue) block-task))
           take
         ==
         ::  ignore non-task line
@@ -57,15 +57,16 @@
     ::
     ++  line
       (star ;~(pose prn alf))
-    ::  +tazk: extract an inline or multi-line task
+    ::  +block-task: extract a single or multi-line task
     ::
-    ++  tazk
+    ++  block-task
       %+  knee  *(list tape)
       |.  ~+
       ;~  pose
         ::  terminate task extraction when a non-:: rune is reached
         ::
-        (cold ~ ;~(less ;~(plug col col) ;~(plug rune rune)))
+        %+  cold  ~
+        ;~(less dent ;~(pose ;~(plug rune) ;~(plug (star ace) rune)))
         ::  otherwise, keep extracting the task
         ::
         ;~  plug
@@ -73,7 +74,7 @@
             ;~(plug (cold ' ' ;~(pose dent (star ace))) line)
             (jest '\0a')
           ==
-          tazk
+          block-task
         ==
       ==
     ::  +dent: parse a the beginning of a comment
@@ -85,9 +86,12 @@
         ;~(plug (star ace) col col (star ace))
         ;~(plug (star ace) col col)
       ==
-    ::  +rune: match a piece of a rune
+    ::  +rune: match a rune
     ::
     ++  rune
+      ;~(plug code code)
+    ::
+    ++  code
       ;~  pose
         bar
         buc
