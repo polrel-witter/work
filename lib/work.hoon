@@ -10,9 +10,12 @@
   =/  prefix=path
     /(scot %p ship.app)/(scot %tas desk.app)/(scot %da now.bowl)
   !<(@t .^(vase %cr (weld prefix file)))
+::  +pa: parser door
 ::
 ++  pa
   |_  [=bowl:gall =clue txt=tape]
+  ::  +parse: parse a tape, extracting tasks that follow an inline clue
+  ::  (task hint)
   ::
   ++  parse
     ^-  (list [task-id task])
@@ -27,6 +30,7 @@
         ?~  raw  out
         =.  task-id  +(task-id)
         $(out [[task-id (crip i.raw)] out], raw t.raw)
+    ::  +take: recursively parse a file
     ::
     ++  take
       |=  a=nail
@@ -35,6 +39,8 @@
       %+  knee  *(list tape)
       |.  ~+
       ;~  pose
+        ::  hunt for task hint
+        ::
         ;~  plug
           %+  cook
             |=  a=(list tape)
@@ -42,23 +48,36 @@
           ;~(pfix dent ;~(pfix (jest clue) tazk))
           take
         ==
-        ;~(pfix line take)
+        ::  ignore non-task line
+        ::
+        ;~(pfix ;~(sfix line (jest '\0a')) take)
         (cold ~ gay)
       ==
+    ::  +line: parse a printable line
     ::
     ++  line
-      ;~(sfix (star ;~(pose prn alf)) (jest '\0a'))
+      (star ;~(pose prn alf))
+    ::  +tazk: extract an inline or multi-line task
     ::
-    :: TODO remove the ::s
     ++  tazk
       %+  knee  *(list tape)
       |.  ~+
       ;~  pose
-        (cold ~ ;~(plug code code))
-        ;~(plug ;~(sfix (star ;~(pose prn alf)) (jest '\0a')) tazk)
+        ::  terminate task extraction when a non-:: rune is reached
+        ::
+        (cold ~ ;~(less ;~(plug col col) ;~(plug rune rune)))
+        ::  otherwise, keep extracting the task
+        ::
+        ;~  plug
+          ;~  sfix
+            ;~(plug (cold ' ' ;~(pose dent (star ace))) line)
+            (jest '\0a')
+          ==
+          tazk
+        ==
       ==
+    ::  +dent: parse a the beginning of a comment
     ::
-    :: TODO refactor: probably simpler config
     ++  dent
       ;~  pose
         ;~(plug col col (star ace))
@@ -66,14 +85,15 @@
         ;~(plug (star ace) col col (star ace))
         ;~(plug (star ace) col col)
       ==
+    ::  +rune: match a piece of a rune
     ::
-    ++  code
+    ++  rune
       ;~  pose
         bar
         buc
         cab
         cen
-        :: col
+        col
         com
         dot
         fas
