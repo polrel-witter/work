@@ -183,11 +183,11 @@
       :: TODO type-check the file; must be hoon
       =/  diff=(list [task-id task])
         ~(parse pa bowl u.clue (trip (get-text bowl app i.paths)))
-      ~&  >  "successfully parsed {<i.paths>}"
+      ~&  >  "successfully parsed {<i.paths>} from {<desk.app>}"
       ?~  diff
-        ~&  >>  "no tasks found in {<i.paths>}"
+        ~&  >>  "no tasks found in {<i.paths>} from {<desk.app>}"
         $(paths t.paths)
-      ~&  >  "surfacing {<(lent diff)>} tasks in {<i.paths>}"
+      ~&  >  "surfacing {<(lent diff)>} tasks in {<i.paths>} from {<desk.app>}"
       =.  cor  (merge-diff [app i.paths] diff)
       $(paths t.paths)
   ::  +merge-diff: update tasks map
