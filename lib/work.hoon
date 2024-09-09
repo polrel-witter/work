@@ -14,13 +14,13 @@
 ::
 ++  pa
   |_  [=bowl:gall =clue txt=tape]
-  ::  +parse: parse a tape, extracting tasks that follow an inline clue
-  ::  (task hint)
+  ::  +parse: pull tasks from a file and prepend an id to each
   ::
   ++  parse
     ^-  (list [task-id task])
+        :: TODO change to rush and include error message
     |^  =/  raw=(list tape)
-          (scan txt take)
+          (scan txt comb)
         ~&  raw
         =/  =task-id
           %+  slav  %uv
@@ -30,36 +30,47 @@
         ?~  raw  out
         =.  task-id  +(task-id)
         $(out [[task-id (crip i.raw)] out], raw t.raw)
-    ::  +take: recursively parse a file
+    ::  +comb: recursively parse a file, extracting tasks that follow an
+    ::  inline clue (task hint); producing a list of tasks
     ::
-    ++  take
-      |=  a=nail
-      %.  a
-      ~&  a
+    ++  comb
       %+  knee  *(list tape)
       |.  ~+
       ;~  pose
-        ::  hunt for task hint, and extract task if found
-        ::
         ;~  plug
           %+  cook
             |=  a=(list tape)
             (zing a)
-          ;~(pfix dent ;~(pfix (jest clue) block-task))
-          take
+          ;~(pfix dent ;~(pfix (jest clue) block))
+          comb
         ==
-        ::  ignore non-task line
-        ::
-        ;~(pfix ;~(sfix line (jest '\0a')) take)
+        inline
         (cold ~ gay)
       ==
-    ::  +line: parse a printable line
+    ::  +take: extract a task line
     ::
-    ++  line
-      (star ;~(pose prn alf))
-    ::  +block-task: extract a single or multi-line task
+    ++  take
+      ;~  sfix
+        ;~  plug
+          (cold ' ' ;~(pose dent (star ace)))
+          (star ;~(pose prn alf))
+        ==
+        (jest '\0a')
+      ==
+    ::  +inline: recurse over a line, hunting for an inline task;
+    ::  discard if no task is found
     ::
-    ++  block-task
+    ++  inline
+      %+  knee  *(list tape)
+      |.  ~+
+      ;~  pose
+        ;~(pfix dent ;~(pfix (jest clue) ;~(plug take comb)))
+        ;~(pfix ;~(pose dent prn alf) inline)
+        ;~(pfix (jest '\0a') comb)
+      ==
+    ::  +block: extract a single or multi-line task
+    ::
+    ++  block
       %+  knee  *(list tape)
       |.  ~+
       ;~  pose
@@ -69,15 +80,10 @@
         ;~(less dent ;~(pose ;~(plug rune) ;~(plug (star ace) rune)))
         ::  otherwise, keep extracting the task
         ::
-        ;~  plug
-          ;~  sfix
-            ;~(plug (cold ' ' ;~(pose dent (star ace))) line)
-            (jest '\0a')
-          ==
-          block-task
-        ==
+        ;~(plug take block)
       ==
-    ::  +dent: parse a the beginning of a comment
+    ::  +dent: parse a the beginning of a comment, with or w/o
+    ::  whitespace
     ::
     ++  dent
       ;~  pose
