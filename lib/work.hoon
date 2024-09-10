@@ -18,22 +18,27 @@
   ::
   ++  parse
     ^-  (list [task-id task])
-        :: TODO change to rush and include error message
-    |^  =/  raw=(list tape)
-          (scan txt comb)
-        ~&  raw
+    |^  =/  raw=(unit (list tape))
+          (rust txt comb)
+        ?~  raw
+          ~&(>>> "failed to parse" ~)
+        ?~  u.raw
+          ~&(>>> "no tasks found" ~)
+        =/  l=(list tape)  u.raw
         =/  =task-id
           %+  slav  %uv
           (crip (weld "0v" (swag [6 4] (scow %uv eny.bowl))))
         =|  out=(list [_task-id task])
         |-
-        ?~  raw  out
+        ?~  l  out
         =.  task-id  +(task-id)
-        $(out [[task-id (crip i.raw)] out], raw t.raw)
+        $(out [[task-id (crip i.l)] out], l t.l)
     ::  +comb: recursively parse a file, extracting tasks that follow an
     ::  inline clue (task hint); producing a list of tasks
     ::
     ++  comb
+      |=  a=nail
+      %.  a
       %+  knee  *(list tape)
       |.  ~+
       ;~  pose
