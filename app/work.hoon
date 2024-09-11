@@ -180,26 +180,71 @@
         ~&(>>> "cannot update tasks, clue not set for {<app>}" cor)
       |-
       ?~  paths  cor
-      :: TODO type-check the file; must be hoon
+      =/  file-type=@ta
+        (rear i.paths)
+      ?.  =(~.hoon file-type)
+        ~&  >>>  "{<(scot %ta file-type)>} file type not supported"
+        $(paths t.paths)
       ~&  >  "parsing {<i.paths>} from {<desk.app>}"
-      =/  diff=(list [task-id task])
+      =/  diff=(unit (list [task-id task]))
         ~(parse pa bowl u.clue (trip (get-text bowl app i.paths)))
       ?~  diff
         $(paths t.paths)
-      ~&  >  "surfacing {<(lent diff)>} tasks"
-      =.  cor  (merge-diff [app i.paths] diff)
+      ?:  ?=([~ ~] diff)
+        ~&  >  "removing old tasks"
+        cor(tasks (~(del by tasks) app i.paths))
+      =.  cor  (merge-diff [app i.paths] u.diff)
       $(paths t.paths)
-  ::  +merge-diff: update tasks map
+  ::  +merge-diff: update tasks mip
   ::
   ++  merge-diff
     |=  [=site diff=(list [=task-id =task])]
     ^+  cor
-    =.  tasks  (~(del by tasks) site)
+    ?~  old=(~(get by tasks) site)
+      (just-update site diff)
+    ?~  u.old
+      (just-update site diff)
+    ::  make a new tasks mip and persist matching tasks
+    ::
+    =|  new-count=_0
+    =|  old-count=_0
+    =|  new=(map task-id task)
+    =/  old=(list [task-id =task])
+      ~(tap by `(map task-id task)`u.old)
     |-
-    ?~  diff  cor
-    :: TODO temporarily delete whole site so we only worry about the most recent diff
-    =.  tasks
-      (~(put bi tasks) site task-id.i.diff task.i.diff)
+    ?~  diff
+      ~?  ?~(old-count | &)
+        "retaining {<old-count>} tasks"
+      ~?  ?~(new-count | &)
+        "surfacing {<new-count>} new tasks"
+      cor(tasks (~(put by tasks) site new))
+    =/  match=(unit [task-id task])
+      |-
+      ?~  old  ~
+      ?:  =(task.i.diff task.i.old)
+        `i.old
+      $(old t.old)
+    ?~  match
+      %=  $
+        new  (~(put by new) i.diff)
+        diff  t.diff
+        new-count  +(new-count)
+      ==
+    %=  $
+      new  (~(put by new) u.match)
+      diff  t.diff
+      old  +.old
+      old-count  +(old-count)
+    ==
+  ::  +just-update: merge diff into tasks mip w/o checks
+  ::
+  ++  just-update
+    |=  [=site diff=(list [task-id task])]
+    ^+  cor
+    |-
+    ?~  diff
+      ~&("surfacing {<(lent diff)>} new tasks" cor)
+    =.  tasks  (~(put bi tasks) site i.diff)
     $(diff t.diff)
   --
 ::  +is-live: is the app installed and alive?

@@ -17,20 +17,21 @@
   ::  +parse: pull tasks from a file and prepend an id to each
   ::
   ++  parse
-    ^-  (list [task-id task])
+    ^-  (unit (list [task-id task]))
     |^  =/  raw=(unit (list tape))
           (rust txt comb)
         ?~  raw
           ~&(>>> "failed to parse" ~)
         ?~  u.raw
-          ~&(>>> "no tasks found" ~)
+          ~&  >  "parse succeeded"
+          ~&(>> "no tasks found" [~ ~])
         =/  l=(list tape)  u.raw
         =/  =task-id
           %+  slav  %uv
           (crip (weld "0v" (swag [6 4] (scow %uv eny.bowl))))
         =|  out=(list [_task-id task])
         |-
-        ?~  l  out
+        ?~  l  `out
         =.  task-id  +(task-id)
         $(out [[task-id (crip i.l)] out], l t.l)
     ::  +comb: recursively parse a file, extracting tasks that follow an
