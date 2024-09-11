@@ -107,26 +107,35 @@
     ++  haf
       ;~  pose
         bar
+        bas
         buc
         cab
         cen
         col
         com
+        doq
         dot
         fas
-        gar
         gal
+        gar
+        hax
         hep
+        kel
+        ker
         ket
         lus
         mic
+        pal
         pam
+        par
         pat
+        sel
+        ser
         sig
+        soq
         tar
         tis
         wut
-        hep
         zap
       ==
     --
