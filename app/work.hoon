@@ -190,8 +190,10 @@
         ~(parse pa bowl u.clue (trip (get-text bowl app i.paths)))
       ?~  diff
         $(paths t.paths)
+      ~&  >  "parse succeeded"
       ?:  ?=([~ ~] diff)
-        ~&  >  "removing old tasks"
+        ~?  >  (~(has by tasks) app i.paths)
+          "removing old tasks"
         cor(tasks (~(del by tasks) app i.paths))
       =.  cor  (merge-diff [app i.paths] u.diff)
       $(paths t.paths)
@@ -213,9 +215,9 @@
       ~(tap by `(map task-id task)`u.old)
     |-
     ?~  diff
-      ~?  ?~(old-count | &)
+      ~?  >  ?~(old-count | &)
         "retaining {<old-count>} tasks"
-      ~?  ?~(new-count | &)
+      ~?  >  ?~(new-count | &)
         "surfacing {<new-count>} new tasks"
       cor(tasks (~(put by tasks) site new))
     =/  match=(unit [task-id task])
@@ -233,7 +235,6 @@
     %=  $
       new  (~(put by new) u.match)
       diff  t.diff
-      old  +.old
       old-count  +(old-count)
     ==
   ::  +just-update: merge diff into tasks mip w/o checks
@@ -241,9 +242,11 @@
   ++  just-update
     |=  [=site diff=(list [task-id task])]
     ^+  cor
+    =/  count=@ud
+      (lent diff)
     |-
     ?~  diff
-      ~&("surfacing {<(lent diff)>} new tasks" cor)
+      ~&(> "surfacing {<count>} tasks" cor)
     =.  tasks  (~(put bi tasks) site i.diff)
     $(diff t.diff)
   --

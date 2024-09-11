@@ -23,7 +23,6 @@
         ?~  raw
           ~&(>>> "failed to parse" ~)
         ?~  u.raw
-          ~&  >  "parse succeeded"
           ~&(>> "no tasks found" [~ ~])
         =/  l=(list tape)  u.raw
         =/  =task-id
