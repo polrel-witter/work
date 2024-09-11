@@ -335,15 +335,16 @@
       ?.  =(our.bowl ship.app.act)
         ~&  >>>  "cannot set task hint for a remote desk"
         cor
-      =/  c=(unit clue)
-        ?~  current=(~(get by clues) app.act)
-          `clue.act
-        ?.  =(u.current clue.act)  `clue.act
-        ~&(>> "{<clue.act>} already set as task hint" ~)
-      ?~  c  cor
+      ?~  clue.act
+        ~&  >  "removing {<desk.app.act>} task hint"
+        cor(clues (~(del by clues) app.act))
+      =/  current=(unit clue)
+        (~(get by clues) app.act)
+      ?:  ?~(current | =(u.current u.clue.act))
+        ~&(>> "{<u.clue.act>} already set as task hint" cor)
       =.  clues
-        (~(put by clues) app.act clue.act)
-      ~&  >  "set {<desk.app.act>} task hint to {<clue.act>}"
+        (~(put by clues) app.act u.clue.act)
+      ~&  >  "set {<desk.app.act>} task hint to {<u.clue.act>}"
       =/  paths=(set path)
         (~(get ju sites) app.act)
       =?  cor  ?~(paths | &)

@@ -19,7 +19,7 @@
 ::  $action: agent poke
 ::
 +$  action
-  $%  [%clue =app =clue]                 :: set task hint for an app
+  $%  [%clue =app clue=(unit clue)]      :: set task hint for an app
       [%surface =app paths=(list path)]  :: publish tasks for set of files
       [%ignore =app paths=(list path)]   :: stop surfacing tasks
   ==
